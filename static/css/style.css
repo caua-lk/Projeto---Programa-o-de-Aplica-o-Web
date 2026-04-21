@@ -1,0 +1,43 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+:root{
+    --brand-50: #E8F5FD;
+    --brand-100: #C0E1F9;
+    --brand-200: #95CDF5;
+    --brand-300: #60B9F0;
+    --brand-400: #529ECD;
+    --brand-500: #4483AB;
+    --brand-600: #376A8A;
+    --brand-700: #2B526A;
+    --brand-800: #1E3A4D;
+    --brand-900: #132431;
+    --brand-950: #020F17;
+
+    --text: #f5f5f5;
+}
+/* Conteúdos da base */
+body{
+    background-color: var(--brand-100);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+main{
+    flex: 1
+}
+header{
+    background-color: var(--brand-300);
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    padding-left: 12px;
+}
+footer{
+    background-color: var(--brand-800);
+    color: var(--text); 
+    text-align: left;
+    padding: 14px;
+}
+/* Demais conteúdos */
