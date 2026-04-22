@@ -1,0 +1,21 @@
+{% block title %}
+    Cadastro
+{% endblock %}
+
+{% block content %}
+<form action="." methd="post">
+    <label for="campo-username">nome de usuário:</label>
+    <input type="text" id="campo-username" name="username">
+    <p class="texto-erro">{{ erros['username'] }}</p>
+    
+    <label for="campo-senha">Senha:</label>
+    <input type="password" name="senha" id="campo-senha">
+    <p class="texto-erro">{{ erros['senha'] }}</p>
+    
+    <label for="campo-confirmacao">Confirmação de senha:</label>
+    <input type="password" name="confirmacao" id="campo-confirmacao">
+    <p class="texto-erro">{{ erros['confirmacao'] }}</p>
+
+    <input type="submit">Enviar</input>
+</form>
+{% endblock %}

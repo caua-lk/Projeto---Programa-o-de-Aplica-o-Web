@@ -1,0 +1,20 @@
+{% block title %}
+    Cadastrar tarefa
+{% endblock %}
+
+{% block content %}
+<form action="." method="post">
+    <label for="campo-titulo">Título:</label>
+    <input type="text" id="campo-titulo" name="titulo">
+    <p class="text-erro">{{ erros['titulo'] }}</p>
+    
+    <label for="campo-descricao">Descrição:</label>
+    <textarea name="descricao" id="campo-descricao"></textarea>
+    
+    <label for="campo-prazo">Prazo:</label>
+    <input type="date" name="prazo" id="campo-prazo">
+    <p class="text-erro">{{ erros['prazo'] }}</p>
+
+    <input type="submit">Enviar</input>
+</form>
+{% endblock %}

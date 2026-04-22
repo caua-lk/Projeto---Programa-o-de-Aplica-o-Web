@@ -1,0 +1,19 @@
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+<form action="." methd="post">
+    <label for="campo-username">Nome de usuário:</label>
+    <input type="text" id="campo-username" name="login">
+    <p class="texto-erro">{{ erros['suername'] }}</p>
+    
+    <label for="campo-senha">Senha:</label>
+    <input type="password" name="senha" id="campo-senha">
+    <p class="texto-erro">{{ erros['senha'] }}</p>
+
+    <p class="texto-erro">{{ erros['geral'] }}</p>
+
+    <input type="submit">Enviar</input>
+</form>
+{% endblock %}

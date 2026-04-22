@@ -5,7 +5,7 @@ O nosso projeto propõe utilizar uma aplicação simples e intuitiva para a orga
 ## Justificativa 	
 A proposta de utilizar uma aplicação simples e intuitiva para a organização e agendamento de atividades cotidianas advém pela necessidade de oferecer uma estrutura eficiente, flexível e com orientação simples.
 
-**Componetes:**
+**Componentes:**
 - Arthur Moreira Barros
 - Cauã Vitor Costa da Silva
 - Daniel dos Santos Soares
