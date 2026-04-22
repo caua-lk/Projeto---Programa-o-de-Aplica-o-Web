@@ -3,16 +3,22 @@
 {% endblock %}
 
 {% block content %}
-<form action="." methd="post">
+<form action="{{ url_for('login') }}" method="post">
     <label for="campo-username">Nome de usuário:</label>
-    <input type="text" id="campo-username" name="login">
-    <p class="texto-erro">{{ erros['suername'] }}</p>
+    <input type="text" id="campo-username" name="username">
+    {% if erros %}
+        <p class="texto-erro">{{ erros['username'] }}</p>
+    {% endif %}
     
     <label for="campo-senha">Senha:</label>
     <input type="password" name="senha" id="campo-senha">
-    <p class="texto-erro">{{ erros['senha'] }}</p>
+    {% if erros %}
+        <p class="texto-erro">{{ erros['senha'] }}</p>
+    {% endif %}
 
-    <p class="texto-erro">{{ erros['geral'] }}</p>
+    {% if erros %}
+        <p class="texto-erro">{{ erros['geral'] }}</p>
+    {% endif %}
 
     <input type="submit">Enviar</input>
 </form>

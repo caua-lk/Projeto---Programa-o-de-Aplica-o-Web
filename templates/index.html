@@ -4,5 +4,10 @@
 {% endblock %} 
 
 {% block content %}
-
+<nav>
+    <ul>
+        <li><a href="{{ url_for('cadastro') }}">Cadastrar-se</a></li>
+        <li><a href="{{ url_for('login') }}">Login</a></li>
+    </ul>
+</nav>
 {% endblock %}

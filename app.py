@@ -6,7 +6,9 @@ usuario = None
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if not usuario:
+        return render_template('index.html')
+    redirect('tarefas')
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -35,7 +37,7 @@ def cadastro():
         arquivo_dados.write(f'{senha}\n')
 
         usuario = username
-        redirect('tarefas')
+        return redirect('tarefas')
     else:
         return render_template('cadastro.html', erros=erros)
     
@@ -58,15 +60,16 @@ def login():
     arquivo_dados = open('data/usuarios.txt')
     dados = arquivo_dados.readlines()
     
-    for n in range(0, len(dados) - 2, 2):
-        _username = dados[n][:len(dados[n]) - 2]
-        _senha = dados[n + 1][:len(dados[n + 1]) - 2]
-        if login == _username:
+    for n in range(0, len(dados), 2):
+        _username = dados[n][:len(dados[n]) - 1]
+        _senha = dados[n + 1][:len(dados[n + 1]) - 1]
+        if username == _username:
             if senha == _senha:
                 usuario = _username
-                redirect('tarefas')
+                return redirect('tarefas')
     else:
-        return render_template('login.html', usuario=usuario)
+        erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
+        return render_template('login.html', erros=erros)
     
 @app.route('/tarefas')
 def tarefas():
@@ -111,4 +114,4 @@ def cadastrar_tarefa():
 def logout():
     global usuario
     usuario = None
-    redirect('login')
+    return redirect('login')

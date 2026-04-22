@@ -3,19 +3,25 @@
 {% endblock %}
 
 {% block content %}
-<form action="." methd="post">
+<form action="/cadastro" method="post">
     <label for="campo-username">nome de usuário:</label>
     <input type="text" id="campo-username" name="username">
+    {% if erros %}
     <p class="texto-erro">{{ erros['username'] }}</p>
+    {% endif %}
     
     <label for="campo-senha">Senha:</label>
     <input type="password" name="senha" id="campo-senha">
-    <p class="texto-erro">{{ erros['senha'] }}</p>
+    {% if erros %}
+        <p class="texto-erro">{{ erros['senha'] }}</p>
+    {% endif %}
     
     <label for="campo-confirmacao">Confirmação de senha:</label>
     <input type="password" name="confirmacao" id="campo-confirmacao">
-    <p class="texto-erro">{{ erros['confirmacao'] }}</p>
+    {% if erros %}
+        <p class="texto-erro">{{ erros['confirmacao'] }}</p>
+    {% endif %}
 
-    <input type="submit">Enviar</input>
+    <input type="submit">
 </form>
 {% endblock %}
