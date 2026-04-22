@@ -1,19 +1,27 @@
+{% extends "base.html" %}
+
 {% block title %}
     Cadastrar tarefa
 {% endblock %}
 
 {% block content %}
+<a href="{{ url_for('tarefas') }}">Tarefas</a>
+
 <form action="." method="post">
     <label for="campo-titulo">Título:</label>
     <input type="text" id="campo-titulo" name="titulo">
-    <p class="text-erro">{{ erros['titulo'] }}</p>
+    {% if erros %}
+        <p class="text-erro">{{ erros['titulo'] }}</p>
+    {% endif %}
     
     <label for="campo-descricao">Descrição:</label>
     <textarea name="descricao" id="campo-descricao"></textarea>
     
     <label for="campo-prazo">Prazo:</label>
     <input type="date" name="prazo" id="campo-prazo">
-    <p class="text-erro">{{ erros['prazo'] }}</p>
+    {% if erros %}
+        <p class="text-erro">{{ erros['prazo'] }}</p>
+    {% endif %}
 
     <input type="submit">Enviar</input>
 </form>

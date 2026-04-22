@@ -22,6 +22,8 @@
         <p class="texto-erro">{{ erros['confirmacao'] }}</p>
     {% endif %}
 
-    <input type="submit">
+    <input type="submit" value="Enviar">
 </form>
+
+<a href="{{ url_for('login') }}">Fazer login</a>
 {% endblock %}

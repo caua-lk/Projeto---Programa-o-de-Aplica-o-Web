@@ -1,9 +1,11 @@
+{% extends "base.html" %}
+
 {% block title %}
     Tarefas
 {% endblock %}
 
 {% block content %}
-    <a href="{{ url_for('logout') }}">
-        <button>Sair</button>
-    </a>
+<a href="{{ url_for('cadastrar_tarefa') }}">
+    <button>Cadastrar tarefa</button>
+</a>
 {% endblock %}
