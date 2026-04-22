@@ -8,4 +8,16 @@
 <a href="{{ url_for('cadastrar_tarefa') }}">
     <button>Cadastrar tarefa</button>
 </a>
+
+<section class="tarefas">
+    {% for tarefa in tarefas %}
+        <div class="tarefa">
+            <h3>{{ tarefa['titulo'] }}</h3>
+            <p>{{ tarefa['descricao'] }}</p>
+            <span>{{ tarefa['prazo'] }}</span>
+        </div>
+    {% empty %}
+        <h2>Sem tarefas cadastradas</h2>
+    {% endfor %}
+</section>
 {% endblock %}

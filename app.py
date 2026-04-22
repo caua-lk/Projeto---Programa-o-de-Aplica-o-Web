@@ -73,13 +73,30 @@ def login():
     
 @app.route('/tarefas')
 def tarefas():
-    return render_template('tarefas.html')
+    if not usuario:
+        return redirect('login')
+
+    arquivo_dados = open(f'data/tarefas/{usuario}.txt')
+    dados = arquivo_dados.readlines()
+    tarefas = []
+
+    for n in range(0, len(dados), 3):
+        tarefa = {
+            'titulo': dados[n][:len(dados[n]) - 1],
+            'descricao': dados[n + 1][:len(dados[n + 1]) - 1],
+            'prazo': dados[n + 2][:len(dados[n + 2]) - 1]
+        }
+
+    return render_template('tarefas.html', tarefas=tarefas)
 
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
 def cadastrar_tarefa():
     if request.method == 'GET':
         return render_template('cadastrar_tarefa.html')
     
+    if usuario is None:
+        return redirect('login')
+
     from datetime import datetime
 
     titulo = request.form.get('titulo')
@@ -87,19 +104,21 @@ def cadastrar_tarefa():
     prazo = request.form.get('prazo')
     erros = {}
 
+    dt_atual = datetime.today()
+
     if not titulo:
         erros['titulo'] = 'Digite um título para cadastrar a tarefa.'
     if prazo:
         ano_prazo = int(prazo[:4])
-        if ano_prazo < datetime.year:
+        if ano_prazo < dt_atual.year:
             erros['prazo'] = 'O prazo inserido já passou.'
-        elif ano_prazo == datetime.year:
+        elif ano_prazo == dt_atual.year:
             mes_prazo = int(prazo[5:7])
-            if mes_prazo < datetime.month:
+            if mes_prazo < dt_atual.month:
                 erros['prazo'] = 'O prazo inserido já passou.'
-            elif mes_prazo == datetime.month:
+            elif mes_prazo == dt_atual.month:
                 dia_prazo = int(prazo[8:])
-                if dia_prazo < datetime.day:
+                if dia_prazo < dt_atual.day:
                     erros['prazo'] = 'O prazo inserido já passou.'
 
     if not erros.items():

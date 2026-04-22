@@ -7,7 +7,7 @@
 {% block content %}
 <a href="{{ url_for('tarefas') }}">Tarefas</a>
 
-<form action="." method="post">
+<form action="{{ url_for('cadastrar_tarefa') }}" method="post">
     <label for="campo-titulo">Título:</label>
     <input type="text" id="campo-titulo" name="titulo">
     {% if erros %}
