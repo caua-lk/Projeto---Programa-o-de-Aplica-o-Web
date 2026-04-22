@@ -8,3 +8,4 @@ A proposta de utilizar uma aplicação simples e intuitiva para a organização 
 **Componetes:**
 - Arthur Moreira Barros
 - Cauã Vitor Costa da Silva
+- Daniel dos Santos Soares
