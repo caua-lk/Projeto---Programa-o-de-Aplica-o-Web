@@ -15,6 +15,12 @@
             <h3>{{ tarefa['titulo'] }}</h3>
             <p>{{ tarefa['descricao'] }}</p>
             <span>{{ tarefa['prazo'] }}</span>
+            <a href="">
+                <button><i class="bi bi-pencil-square"></i></button>
+            </a>
+            <a href="{{ url_for('remover_tarefa', id=tarefa['id']) }}">
+                <button><i class="bi bi-trash-fill"></i></button>
+            </a>
         </div>
     {% else %}
         <h2>Sem tarefas cadastradas</h2>

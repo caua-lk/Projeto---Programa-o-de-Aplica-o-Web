@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
@@ -13,9 +13,26 @@ def autenticar(username: str) -> None:
 
 def usuario_autenticado() -> str | None:
     arquivo = open('data/usuario.txt')
-    if not arquivo.read():
+    linhas = arquivo.readlines()
+    if not linhas[0]:
         return None
-    return arquivo.read()
+    return linhas[0]
+
+def carregar_tarefas() -> list[dict[str, str]]:
+    arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt')
+    dados = arquivo_dados.readlines()
+    tarefas = []
+
+    for n in range(0, len(dados), 4):
+        tarefa = {
+            'titulo': dados[n][:len(dados[n]) - 1],
+            'descricao': dados[n + 1][:len(dados[n + 1]) - 1],
+            'prazo': dados[n + 2][:len(dados[n + 2]) - 1],
+            'id': dados[n + 3][:len(dados[n + 3]) - 1]
+        }
+        tarefas.append(tarefa)
+
+    return tarefas
 
 @app.route('/')
 def index():
@@ -86,20 +103,7 @@ def login():
 def tarefas():
     if usuario_autenticado() is None:
         return redirect('login')
-
-    arquivo_dados = open(f'data/tarefas/{usuario}.txt')
-    dados = arquivo_dados.readlines()
-    tarefas = []
-
-    for n in range(0, len(dados), 3):
-        tarefa = {
-            'titulo': dados[n][:len(dados[n]) - 1],
-            'descricao': dados[n + 1][:len(dados[n + 1]) - 1],
-            'prazo': dados[n + 2][:len(dados[n + 2]) - 1]
-        }
-        tarefas.append(tarefa)
-
-    return render_template('tarefas.html', tarefas=tarefas)
+    return render_template('tarefas.html', tarefas=carregar_tarefas())
 
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
 def cadastrar_tarefa():
@@ -134,10 +138,16 @@ def cadastrar_tarefa():
                     erros['prazo'] = 'O prazo inserido já passou.'
 
     if not erros.items():
-        arquivo_dados = open(f'data/tarefas/{usuario}.txt', 'a')
+        arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt', 'a')
         arquivo_dados.write(f'{titulo}\n')
         arquivo_dados.write(f'{descricao}\n')
         arquivo_dados.write(f'{prazo}\n')
+
+        with open(f'data/tarefas/{usuario_autenticado()}.txt') as arquivo_dados_r:
+            if len(arquivo_dados_r.readlines()) == 0:
+                arquivo_dados.write('1\n')
+            else:
+                arquivo_dados.write(f'{(len(arquivo_dados) - 1) / 2 + 1}\n')
 
         return redirect('tarefas')
     else:
@@ -151,3 +161,24 @@ def logout():
     arquivo = open('data/usuario.txt', 'w')
     arquivo.write('')
     return redirect('login')
+
+@app.route('/remover-tarefa/<id>')
+def remover_tarefa(id: str):
+    if usuario_autenticado() is None:
+        redirect('login')
+
+    tarefas = carregar_tarefas()
+    for tarefa in tarefas:
+        if tarefa['id'] == id:
+            tarefas.remove(tarefa)
+
+    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'w') as arquivo_tarefas:
+        arquivo_tarefas.write('')
+    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'a') as arquivo_tarefas:
+        for tarefa in tarefas:
+            arquivo_tarefas.write(f'{tarefa["titulo"]}\n')
+            arquivo_tarefas.write(f'{tarefa["descricao"]}\n')
+            arquivo_tarefas.write(f'{tarefa["prazo"]}\n')
+            arquivo_tarefas.write(f'{tarefa["id"]}\n')
+
+    return redirect(url_for('tarefas'))
