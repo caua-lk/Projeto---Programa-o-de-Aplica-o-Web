@@ -8,6 +8,9 @@
 <a href="{{ url_for('cadastrar_tarefa') }}">
     <button>Cadastrar tarefa</button>
 </a>
+<a href="{{ url_for('logout') }}">
+    <button>Sair</button>
+</a>
 
 <section class="tarefas">
     {% for tarefa in tarefas %}
