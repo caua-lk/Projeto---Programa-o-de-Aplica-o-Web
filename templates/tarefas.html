@@ -15,7 +15,7 @@
             <h3>{{ tarefa['titulo'] }}</h3>
             <p>{{ tarefa['descricao'] }}</p>
             <span>{{ tarefa['prazo'] }}</span>
-            <a href="">
+            <a href="{{ url_for('editar_tarefa', id=tarefa['id']) }}">
                 <button><i class="bi bi-pencil-square"></i></button>
             </a>
             <a href="{{ url_for('remover_tarefa', id=tarefa['id']) }}">

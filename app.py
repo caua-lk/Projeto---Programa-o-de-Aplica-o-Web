@@ -34,6 +34,29 @@ def carregar_tarefas() -> list[dict[str, str]]:
 
     return tarefas
 
+def validar_dados_tarefa(titulo: str, prazo: str):
+    from datetime import datetime
+
+    erros = {}
+    dt_atual = datetime.today()
+
+    if not titulo:
+        erros['titulo'] = 'Digite um título para cadastrar a tarefa.'
+    if prazo:
+        ano_prazo = int(prazo[:4])
+        if ano_prazo < dt_atual.year:
+            erros['prazo'] = 'O prazo inserido já passou.'
+        elif ano_prazo == dt_atual.year:
+            mes_prazo = int(prazo[5:7])
+            if mes_prazo < dt_atual.month:
+                erros['prazo'] = 'O prazo inserido já passou.'
+            elif mes_prazo == dt_atual.month:
+                dia_prazo = int(prazo[8:])
+                if dia_prazo < dt_atual.day:
+                    erros['prazo'] = 'O prazo inserido já passou.'
+
+    return erros
+
 @app.route('/')
 def index():
     if not usuario:
@@ -111,31 +134,12 @@ def cadastrar_tarefa():
         return redirect('login')
 
     if request.method == 'GET':
-        return render_template('cadastrar_tarefa.html')
-
-    from datetime import datetime
+        return render_template('formulario_tarefa.html', view='cadastrar_tarefa')
 
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
-    erros = {}
-
-    dt_atual = datetime.today()
-
-    if not titulo:
-        erros['titulo'] = 'Digite um título para cadastrar a tarefa.'
-    if prazo:
-        ano_prazo = int(prazo[:4])
-        if ano_prazo < dt_atual.year:
-            erros['prazo'] = 'O prazo inserido já passou.'
-        elif ano_prazo == dt_atual.year:
-            mes_prazo = int(prazo[5:7])
-            if mes_prazo < dt_atual.month:
-                erros['prazo'] = 'O prazo inserido já passou.'
-            elif mes_prazo == dt_atual.month:
-                dia_prazo = int(prazo[8:])
-                if dia_prazo < dt_atual.day:
-                    erros['prazo'] = 'O prazo inserido já passou.'
+    erros = validar_dados_tarefa(titulo, prazo)
 
     if not erros.items():
         arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt', 'a')
@@ -144,14 +148,16 @@ def cadastrar_tarefa():
         arquivo_dados.write(f'{prazo}\n')
 
         with open(f'data/tarefas/{usuario_autenticado()}.txt') as arquivo_dados_r:
-            if len(arquivo_dados_r.readlines()) == 0:
+            linhas = arquivo_dados_r.readlines()
+
+            if len(linhas) == 0:
                 arquivo_dados.write('1\n')
             else:
-                arquivo_dados.write(f'{(len(arquivo_dados) - 1) / 2 + 1}\n')
+                arquivo_dados.write(f'{int((len(linhas)) / 4 + 1)}\n')
 
         return redirect('tarefas')
     else:
-        return render_template('cadastrar_tarefa.html', erros=erros)
+        return render_template('formulario_tarefa.html', erros=erros, view='cadastrar_tarefa')
 
 @app.route('/logout')
 def logout():
@@ -171,6 +177,40 @@ def remover_tarefa(id: str):
     for tarefa in tarefas:
         if tarefa['id'] == id:
             tarefas.remove(tarefa)
+
+    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'w') as arquivo_tarefas:
+        arquivo_tarefas.write('')
+    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'a') as arquivo_tarefas:
+        for tarefa in tarefas:
+            arquivo_tarefas.write(f'{tarefa["titulo"]}\n')
+            arquivo_tarefas.write(f'{tarefa["descricao"]}\n')
+            arquivo_tarefas.write(f'{tarefa["prazo"]}\n')
+            arquivo_tarefas.write(f'{tarefa["id"]}\n')
+
+    return redirect(url_for('tarefas'))
+
+@app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
+def editar_tarefa(id: str):
+    if usuario_autenticado() is None:
+        return redirect('login')
+    
+    if request.method == 'GET':
+        return render_template('formulario_tarefa.html', id=id)
+    
+    titulo = request.form.get('titulo')
+    descricao = request.form.get('descricao')
+    prazo = request.form.get('prazo')
+
+    erros = validar_dados_tarefa(titulo, prazo)
+    if erros.items():
+        return render_template('formulario_tarefa.html', erros=erros, id=id)
+
+    tarefas = carregar_tarefas()
+    for tarefa in tarefas:
+        if tarefa['id'] == id:
+            tarefa['titulo'] = titulo
+            tarefa['descricao'] = descricao
+            tarefa['prazo'] = prazo
 
     with open(f'data/tarefas/{usuario_autenticado()}.txt', 'w') as arquivo_tarefas:
         arquivo_tarefas.write('')
