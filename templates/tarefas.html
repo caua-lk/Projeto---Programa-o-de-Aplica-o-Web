@@ -16,7 +16,7 @@
             <p>{{ tarefa['descricao'] }}</p>
             <span>{{ tarefa['prazo'] }}</span>
         </div>
-    {% empty %}
+    {% else %}
         <h2>Sem tarefas cadastradas</h2>
     {% endfor %}
 </section>

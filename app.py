@@ -36,6 +36,8 @@ def cadastro():
         arquivo_dados.write(f'{username}\n')
         arquivo_dados.write(f'{senha}\n')
 
+        open(f'data/tarefas/{username}.txt', 'x')
+
         usuario = username
         return redirect('tarefas')
     else:
@@ -73,7 +75,7 @@ def login():
     
 @app.route('/tarefas')
 def tarefas():
-    if not usuario:
+    if usuario is None:
         return redirect('login')
 
     arquivo_dados = open(f'data/tarefas/{usuario}.txt')
@@ -86,16 +88,17 @@ def tarefas():
             'descricao': dados[n + 1][:len(dados[n + 1]) - 1],
             'prazo': dados[n + 2][:len(dados[n + 2]) - 1]
         }
+        tarefas.append(tarefa)
 
     return render_template('tarefas.html', tarefas=tarefas)
 
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
 def cadastrar_tarefa():
-    if request.method == 'GET':
-        return render_template('cadastrar_tarefa.html')
-    
     if usuario is None:
         return redirect('login')
+
+    if request.method == 'GET':
+        return render_template('cadastrar_tarefa.html')
 
     from datetime import datetime
 
@@ -126,6 +129,8 @@ def cadastrar_tarefa():
         arquivo_dados.write(f'{titulo}\n')
         arquivo_dados.write(f'{descricao}\n')
         arquivo_dados.write(f'{prazo}\n')
+
+        return redirect('tarefas')
     else:
         return render_template('cadastrar_tarefa.html', erros=erros)
 
