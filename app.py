@@ -4,6 +4,19 @@ app = Flask(__name__)
 
 usuario = None
 
+def autenticar(username: str) -> None:
+    global usuario
+    usuario = username
+
+    arquivo = open('data/usuario.txt', 'w')
+    arquivo.write(username)
+
+def usuario_autenticado() -> str | None:
+    arquivo = open('data/usuario.txt')
+    if not arquivo.read():
+        return None
+    return arquivo.read()
+
 @app.route('/')
 def index():
     if not usuario:
@@ -14,8 +27,6 @@ def index():
 def cadastro():
     if request.method == 'GET':
         return render_template('cadastro.html')
-
-    global usuario
 
     username = request.form.get('username')
     senha = request.form.get('senha')
@@ -38,7 +49,7 @@ def cadastro():
 
         open(f'data/tarefas/{username}.txt', 'x')
 
-        usuario = username
+        autenticar(username)
         return redirect('tarefas')
     else:
         return render_template('cadastro.html', erros=erros)
@@ -47,8 +58,6 @@ def cadastro():
 def login():
     if request.method == 'GET':
         return render_template('login.html')
-    
-    global usuario
 
     username = request.form.get('username')
     senha = request.form.get('senha')
@@ -67,7 +76,7 @@ def login():
         _senha = dados[n + 1][:len(dados[n + 1]) - 1]
         if username == _username:
             if senha == _senha:
-                usuario = _username
+                autenticar(username)
                 return redirect('tarefas')
     else:
         erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
@@ -75,7 +84,7 @@ def login():
     
 @app.route('/tarefas')
 def tarefas():
-    if usuario is None:
+    if usuario_autenticado() is None:
         return redirect('login')
 
     arquivo_dados = open(f'data/tarefas/{usuario}.txt')
@@ -94,7 +103,7 @@ def tarefas():
 
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
 def cadastrar_tarefa():
-    if usuario is None:
+    if usuario_autenticado() is None:
         return redirect('login')
 
     if request.method == 'GET':
@@ -138,4 +147,7 @@ def cadastrar_tarefa():
 def logout():
     global usuario
     usuario = None
+
+    arquivo = open('data/usuario.txt', 'w')
+    arquivo.write('')
     return redirect('login')
