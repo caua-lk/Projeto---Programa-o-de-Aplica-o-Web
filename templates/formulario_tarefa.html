@@ -10,18 +10,18 @@
 </a>
 <a href="{{ url_for('tarefas') }}">Tarefas</a>
 
-<form action="{{ url_for('editar_tarefa', id=id) if id else url_for('cadastrar_tarefa') }}" method="post">
+<form action="{{ url_for('editar_tarefa', id=tarefa['id']) if tarefa else url_for('cadastrar_tarefa') }}" method="post">
     <label for="campo-titulo">Título:</label>
-    <input type="text" id="campo-titulo" name="titulo">
+    <input type="text" id="campo-titulo" name="titulo" value="{{ tarefa['titulo'] if tarefa else '' }}">
     {% if erros %}
         <p class="text-erro">{{ erros['titulo'] }}</p>
     {% endif %}
     
     <label for="campo-descricao">Descrição:</label>
-    <textarea name="descricao" id="campo-descricao"></textarea>
+    <textarea name="descricao" id="campo-descricao">{{ tarefa['descricao'] if tarefa and tarefa['descricao'] != 'Sem descrição.' else '' }}</textarea>
     
     <label for="campo-prazo">Prazo:</label>
-    <input type="date" name="prazo" id="campo-prazo">
+    <input type="date" name="prazo" id="campo-prazo" value="{{ tarefa['prazo'] if tarefa and tarefa['prazo'] != 'Sem prazo.' else '' }}">
     {% if erros %}
         <p class="text-erro">{{ erros['prazo'] }}</p>
     {% endif %}

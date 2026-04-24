@@ -163,8 +163,13 @@ def remover_tarefa(id: str):
 @validar_usuario
 @app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
 def editar_tarefa(id: str):
+    tarefas = carregar_tarefas()
+    for tarefa in tarefas:
+        if tarefa['id'] == id:
+            dados_tarefa = tarefa
+
     if request.method == 'GET':
-        return render_template('formulario_tarefa.html', id=id)
+        return render_template('formulario_tarefa.html', tarefa=dados_tarefa)
     
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
@@ -172,9 +177,8 @@ def editar_tarefa(id: str):
 
     erros = validar_dados_tarefa(titulo, prazo)
     if erros.items():
-        return render_template('formulario_tarefa.html', erros=erros, id=id)
+        return render_template('formulario_tarefa.html', erros=erros, tarefa=dados_tarefa)
 
-    tarefas = carregar_tarefas()
     for tarefa in tarefas:
         if tarefa['id'] == id:
             tarefa['titulo'] = titulo
