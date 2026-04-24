@@ -74,7 +74,16 @@ def login():
 @validar_usuario
 @app.route('/tarefas')
 def tarefas():
-    return render_template('tarefas.html', tarefas=carregar_tarefas())
+    tarefas_inicial = carregar_tarefas()
+    tarefas = []
+    if request.args and request.args.get('titulo'):
+        for tarefa in tarefas_inicial:
+            if request.args['titulo'] in tarefa['titulo']:
+                tarefas.append(tarefa)
+
+    if tarefas:
+        return render_template('tarefas.html', tarefas=tarefas)
+    return render_template('tarefas.html', tarefas=tarefas_inicial)
 
 @validar_usuario
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
