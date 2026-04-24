@@ -20,12 +20,13 @@
 /* Conteúdos da base */
 body{
     background-color: var(--brand-100);
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 main{
-    flex: 1
+    flex: 1;
+    text-align: center;
 }
 header{
     background-color: var(--brand-300);
@@ -41,3 +42,60 @@ footer{
     padding: 14px;
 }
 /* Demais conteúdos */
+/* Index.html */
+nav{
+    background-color: var(--brand-500);
+    padding: 14px;
+    display: flex;
+    align-items: left;
+}
+ul{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+ul li{
+    list-style: none;
+}
+ul li a{
+    text-decoration: none;
+    color: var(--text);
+    font-size: 18px;
+}
+/* Cadastro/login.html */
+
+form{
+    display: flex;
+    flex-direction: column;
+    background-color: var(--brand-400);
+    padding: 14px;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    border-radius: 24px;
+}
+input{
+    width: 90%;
+    background-color: var(--brand-100);
+    padding: 2px;
+    border-radius: 8px;
+    transition: all ease 0.2s;
+    margin-top: 5px;
+}
+input:hover{
+    transform: scale(1.02);
+}
+input:focus{
+    border: var(--brand-400) solid 1px;
+}
+label{
+    text-decoration: underline;
+    color: var(--text);
+}
+main a{
+    color: var(--brand-100);
+    background-color: var(--brand-600);
+    padding: 12px 14px 12px  14px;
+    border-radius: 24px;
+}
