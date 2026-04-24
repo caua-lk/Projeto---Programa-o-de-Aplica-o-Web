@@ -105,7 +105,10 @@ def cadastrar_tarefa():
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
-    erros = validar_dados_tarefa(titulo, prazo)
+
+    tarefas = carregar_tarefas()
+    id_nova_tarefa = len(tarefas) + 1
+    erros = validar_dados_tarefa(titulo, prazo, id_nova_tarefa)
 
     if not erros.items():
         arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt', 'a')
@@ -115,14 +118,7 @@ def cadastrar_tarefa():
         arquivo_dados.write(f'{titulo}\n')
         arquivo_dados.write(f'{descricao if descricao else "Sem descrição."}\n')
         arquivo_dados.write(f'{prazo if prazo else "Sem prazo."}\n')
-
-        with open(f'data/tarefas/{usuario_autenticado()}.txt') as arquivo_dados_r:
-            linhas = arquivo_dados_r.readlines()
-
-            if len(linhas) == 0:
-                arquivo_dados.write('1\n')
-            else:
-                arquivo_dados.write(f'{int((len(linhas)) / 4 + 1)}\n')
+        arquivo_dados.write(f'{id_nova_tarefa}\n')
 
         return redirect('tarefas')
     else:
@@ -175,7 +171,7 @@ def editar_tarefa(id: str):
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
 
-    erros = validar_dados_tarefa(titulo, prazo)
+    erros = validar_dados_tarefa(titulo, prazo, id)
     if erros.items():
         return render_template('formulario_tarefa.html', erros=erros, tarefa=dados_tarefa)
 

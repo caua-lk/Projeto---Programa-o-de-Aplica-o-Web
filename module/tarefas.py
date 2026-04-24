@@ -16,14 +16,14 @@ def carregar_tarefas() -> list[dict[str, str]]:
 
     return tarefas
 
-def validar_dados_tarefa(titulo: str, prazo: str):
+def validar_dados_tarefa(titulo: str, prazo: str, id: int):
     from datetime import datetime
 
     erros = {}
     dt_atual = datetime.today()
 
     for tarefa in carregar_tarefas():
-        if titulo == tarefa['titulo']:
+        if titulo == tarefa['titulo'] and id != tarefa['id']:
             erros['titulo'] = 'Já existe uma tarefa com este título.'
             break
 
