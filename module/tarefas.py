@@ -22,6 +22,11 @@ def validar_dados_tarefa(titulo: str, prazo: str):
     erros = {}
     dt_atual = datetime.today()
 
+    for tarefa in carregar_tarefas():
+        if titulo == tarefa['titulo']:
+            erros['titulo'] = 'Já existe uma tarefa com este título.'
+            break
+
     if not titulo:
         erros['titulo'] = 'Digite um título para cadastrar a tarefa.'
     if prazo:

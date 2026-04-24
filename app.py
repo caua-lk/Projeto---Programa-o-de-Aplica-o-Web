@@ -31,6 +31,14 @@ def cadastro():
     if senha and confirmacao and senha != confirmacao:
         erros['confirmacao'] = 'Confirmação incorreta.'
 
+    with open('data/usuarios.txt') as arquivo_usuarios:
+        linhas_usuarios = arquivo_usuarios.readlines()
+
+        for n in range(0, len(linhas_usuarios), 2):
+            if linhas_usuarios[n][:len(linhas_usuarios[n]) - 1] == username:
+                erros['username'] = 'Já existe um usuário com este nome.'
+                break
+
     if not erros.items():
         arquivo_dados = open('data/usuarios.txt', 'w')
         arquivo_dados.write(f'{username}\n')
