@@ -40,9 +40,12 @@ def cadastro():
                 break
 
     if not erros.items():
-        arquivo_dados = open('data/usuarios.txt', 'w')
-        arquivo_dados.write(fr'{username}\n')
-        arquivo_dados.write(fr'{senha}\n')
+        arquivo_dados = open('data/usuarios.txt', 'a')
+        username = username.replace('\n', '\\n')
+        senha = senha.replace('\n', '\\n')
+
+        arquivo_dados.write(f'{username}' + '\n')
+        arquivo_dados.write(f'{senha}' + '\n')
 
         open(f'data/tarefas/{username}.txt', 'x')
 
@@ -106,9 +109,12 @@ def cadastrar_tarefa():
 
     if not erros.items():
         arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt', 'a')
-        arquivo_dados.write(fr'{titulo}\n')
-        arquivo_dados.write(fr'{descricao if descricao else "Sem descrição."}\n')
-        arquivo_dados.write(fr'{prazo if prazo else "Sem prazo."}\n')
+        titulo = titulo.replace('\n', '\\n')
+        descricao = descricao.replace('\n', '\\n')
+
+        arquivo_dados.write(f'{titulo}\n')
+        arquivo_dados.write(f'{descricao if descricao else "Sem descrição."}\n')
+        arquivo_dados.write(f'{prazo if prazo else "Sem prazo."}\n')
 
         with open(f'data/tarefas/{usuario_autenticado()}.txt') as arquivo_dados_r:
             linhas = arquivo_dados_r.readlines()
@@ -144,8 +150,11 @@ def remover_tarefa(id: str):
         arquivo_tarefas.write('')
     with open(f'data/tarefas/{usuario_autenticado()}.txt', 'a') as arquivo_tarefas:
         for tarefa in tarefas:
-            arquivo_tarefas.write(f'{tarefa["titulo"]}\n')
-            arquivo_tarefas.write(f'{tarefa["descricao"]}\n')
+            titulo = tarefa['titulo'].replace('\n', '\\n')
+            descricao = tarefa['desicricao'].replace('\n', '\\n')
+
+            arquivo_tarefas.write(f'{titulo}\n')
+            arquivo_tarefas.write(f'{descricao}\n')
             arquivo_tarefas.write(f'{tarefa["prazo"]}\n')
             arquivo_tarefas.write(f'{tarefa["id"]}\n')
 
@@ -176,9 +185,13 @@ def editar_tarefa(id: str):
         arquivo_tarefas.write('')
     with open(f'data/tarefas/{usuario_autenticado()}.txt', 'a') as arquivo_tarefas:
         for tarefa in tarefas:
-            arquivo_tarefas.write(f'{tarefa["titulo"]}\n')
-            arquivo_tarefas.write(f'{tarefa["descricao"]}\n')
-            arquivo_tarefas.write(f'{tarefa["prazo"]}\n')
+            titulo = tarefa['titulo'].replace('\n', '\\n')
+            descricao = tarefa['descricao'].replace('\n', '\\n')
+            prazo = tarefa['prazo']
+
+            arquivo_tarefas.write(f'{titulo}\n')
+            arquivo_tarefas.write(f'{descricao if descricao else "Sem descrição."}\n')
+            arquivo_tarefas.write(f'{prazo if prazo else "Sem prazo."}\n')
             arquivo_tarefas.write(f'{tarefa["id"]}\n')
 
     return redirect(url_for('tarefas'))
