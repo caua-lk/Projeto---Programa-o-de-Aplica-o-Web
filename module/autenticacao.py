@@ -5,7 +5,7 @@ def autenticar(username: str) -> None:
     usuario = username
 
     arquivo = open('data/usuario.txt', 'w')
-    arquivo.write(username)
+    arquivo.write(fr'{username}')
 
 def usuario_autenticado() -> str | None:
     arquivo = open('data/usuario.txt')

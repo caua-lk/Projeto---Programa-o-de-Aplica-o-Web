@@ -41,8 +41,8 @@ def cadastro():
 
     if not erros.items():
         arquivo_dados = open('data/usuarios.txt', 'w')
-        arquivo_dados.write(f'{username}\n')
-        arquivo_dados.write(f'{senha}\n')
+        arquivo_dados.write(fr'{username}\n')
+        arquivo_dados.write(fr'{senha}\n')
 
         open(f'data/tarefas/{username}.txt', 'x')
 
@@ -106,9 +106,9 @@ def cadastrar_tarefa():
 
     if not erros.items():
         arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt', 'a')
-        arquivo_dados.write(f'{titulo}\n')
-        arquivo_dados.write(f'{descricao}\n')
-        arquivo_dados.write(f'{prazo}\n')
+        arquivo_dados.write(fr'{titulo}\n')
+        arquivo_dados.write(fr'{descricao if descricao else "Sem descrição."}\n')
+        arquivo_dados.write(fr'{prazo if prazo else "Sem prazo."}\n')
 
         with open(f'data/tarefas/{usuario_autenticado()}.txt') as arquivo_dados_r:
             linhas = arquivo_dados_r.readlines()
