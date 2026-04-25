@@ -5,7 +5,7 @@
 
 {% block content %}
 <form action="/cadastro" method="post">
-    <label for="campo-username">nome de usuário:</label>
+    <label for="campo-username">Nome de Usuário:</label>
     <input type="text" id="campo-username" name="username">
     {% if erros %}
     <p class="texto-erro">{{ erros['username'] }}</p>

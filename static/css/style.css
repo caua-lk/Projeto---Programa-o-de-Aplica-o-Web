@@ -1,101 +1,153 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
 }
+
 :root{
-    --brand-50: #E8F5FD;
     --brand-100: #C0E1F9;
-    --brand-200: #95CDF5;
     --brand-300: #60B9F0;
     --brand-400: #529ECD;
     --brand-500: #4483AB;
     --brand-600: #376A8A;
     --brand-700: #2B526A;
     --brand-800: #1E3A4D;
-    --brand-900: #132431;
-    --brand-950: #020F17;
 
-    --text: #f5f5f5;
+    --text: #ffffff;
+    --error: #ff4d4d;
 }
-/* Conteúdos da base */
+
+/* BASE */
 body{
-    background-color: var(--brand-100);
+    background: linear-gradient(135deg, var(--brand-100), var(--brand-300));
+    font-family: 'Segoe UI', sans-serif;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
+
+/* HEADER */
+header{
+    background-color: var(--brand-400);
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header img{
+    width: 40px;
+}
+
+/* MAIN CENTRALIZADO */
 main{
     flex: 1;
-    text-align: center;
-}
-header{
-    background-color: var(--brand-300);
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    padding-left: 12px;
-}
-footer{
-    background-color: var(--brand-800);
-    color: var(--text); 
-    text-align: left;
-    padding: 14px;
-}
-/* Demais conteúdos */
-/* Index.html */
-nav{
-    background-color: var(--brand-500);
-    padding: 14px;
-    display: flex;
-    align-items: left;
-}
-ul{
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    flex-direction: column;
 }
+
+/* FOOTER */
+footer{
+    background-color: var(--brand-800);
+    color: var(--text);
+    text-align: center;
+    padding: 10px;
+}
+
+/* NAV */
+nav{
+    background-color: var(--brand-500);
+    padding: 15px;
+    border-radius: 12px;
+}
+
+ul{
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
 ul li{
     list-style: none;
 }
-ul li a{
-    text-decoration: none;
-    color: var(--text);
-    font-size: 18px;
-}
-/* Cadastro/login.html */
 
+ul li a{
+    color: var(--text);
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+ul li a:hover{
+    background-color: var(--brand-600);
+}
+
+/* FORM */
 form{
+    background-color: var(--brand-400);
+    padding: 20px;
+    border-radius: 16px;
+    width: 320px;
     display: flex;
     flex-direction: column;
-    background-color: var(--brand-400);
-    padding: 14px;
-    align-items: center;
-    justify-content: center;
-    width: 50%;
-    border-radius: 24px;
+    gap: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
-input{
-    width: 90%;
-    background-color: var(--brand-100);
-    padding: 2px;
+
+/* INPUTS */
+input, textarea{
+    padding: 8px;
     border-radius: 8px;
-    transition: all ease 0.2s;
-    margin-top: 5px;
+    border: none;
+    width: 100%;
 }
-input:hover{
-    transform: scale(1.02);
+
+input:focus, textarea:focus{
+    outline: none;
+    border: 2px solid var(--brand-600);
 }
-input:focus{
-    border: var(--brand-400) solid 1px;
-}
+
+/* LABEL */
 label{
-    text-decoration: underline;
     color: var(--text);
+    font-size: 14px;
 }
-main a{
-    color: var(--brand-100);
+
+/* BOTÕES */
+button, input[type="submit"]{
     background-color: var(--brand-600);
-    padding: 12px 14px 12px  14px;
-    border-radius: 24px;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 12px;
+    cursor: pointer;
 }
+
+button:hover, input[type="submit"]:hover{
+    background-color: var(--brand-700);
+    transform: scale(1.05);
+}
+
+/* LINKS PRINCIPAIS */
+main a{
+    margin-top: 10px;
+    color: white;
+    text-decoration: none;
+    background-color: var(--brand-500);
+    padding: 8px 14px;
+    border-radius: 12px;
+}
+
+main a:hover{
+    background-color: var(--brand-600);
+}
+
+/* ERROS */
+.texto-erro, .text-erro{
+    color: var(--error);
+    font-size: 13px;
+}
+

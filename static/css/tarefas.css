@@ -1,0 +1,102 @@
+/* CONTAINER */
+.tarefas{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 420px;
+    margin-top: 20px;
+}
+
+/* PESQUISA */
+.perquisar{
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.perquisar input{
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.perquisar button{
+    padding: 10px 14px;
+}
+
+/* CARD */
+.tarefa{
+    background-color: var(--brand-400);
+    padding: 15px;
+    border-radius: 14px;
+    color: white;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* TOPO (TÍTULO + PRAZO) */
+.tarefa-topo{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* TÍTULO */
+.tarefa h3{
+    font-size: 18px;
+}
+
+/* PRAZO */
+.tarefa span{
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* DESCRIÇÃO */
+.tarefa p{
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* RODAPÉ (BOTÕES) */
+.tarefa-acoes{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* BOTÕES */
+.tarefa-acoes button{
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* EDITAR */
+.btn-editar{
+    background-color: #4CAF50;
+}
+
+.btn-editar:hover{
+    background-color: #388e3c;
+}
+
+/* EXCLUIR */
+.btn-excluir{
+    background-color: #e53935;
+}
+
+.btn-excluir:hover{
+    background-color: #c62828;
+}
+
+/* ÍCONES */
+.tarefa button i{
+    font-size: 16px;
+}
