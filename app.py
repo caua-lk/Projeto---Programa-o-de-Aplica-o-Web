@@ -1,11 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
-
+import sqlite3
 app = Flask(__name__)
-
-usuario = None
-
+def conexao():
+    conexao = sqlite3.connect('bank.sql')
+    conexao.row_factory = sqlite3.Row
+    return conexao
+def iniciar():
+    conect = conexao()
+    conect.execute("""
+        CREATE TABLE IF NOT EXISTS User (
+            id INTERGER PRIMARY KEY NOT NULL AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            senha TEXT NOT NULL
+        )
+    """)
 @app.route('/')
 def index():
     if not usuario:
