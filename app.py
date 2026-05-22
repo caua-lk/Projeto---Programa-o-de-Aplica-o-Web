@@ -11,11 +11,23 @@ def iniciar():
     conect = conexao()
     conect.execute("""
         CREATE TABLE IF NOT EXISTS User (
-            id INTERGER PRIMARY KEY NOT NULL AUTOINCREMENT,
+            id INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
             nome TEXT NOT NULL,
             senha TEXT NOT NULL
         )
     """)
+    conect.execute('''
+        CREATE TABLE IF NOT EXISTS Tarefa (
+        id INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT,
+        nome TEXTO NOT NULL,
+        descricao TEXT NOT NULL,
+        prazo TEXT,
+        user_id INTEGER,
+        FOREING KEY (user_id) REFERENCES User (id)
+        )
+    ''')
+    conect.commit()
+    conect.close()
 @app.route('/')
 def index():
     if not usuario:
@@ -41,23 +53,17 @@ def cadastro():
     if senha and confirmacao and senha != confirmacao:
         erros['confirmacao'] = 'Confirmação incorreta.'
 
-    with open('data/usuarios.txt') as arquivo_usuarios:
-        linhas_usuarios = arquivo_usuarios.readlines()
-
-        for n in range(0, len(linhas_usuarios), 2):
-            if linhas_usuarios[n][:len(linhas_usuarios[n]) - 1] == username:
-                erros['username'] = 'Já existe um usuário com este nome.'
-                break
-
-    if not erros.items():
-        arquivo_dados = open('data/usuarios.txt', 'a')
-        username = username.replace('\n', '\\n')
-        senha = senha.replace('\n', '\\n')
-
-        arquivo_dados.write(f'{username}' + '\n')
-        arquivo_dados.write(f'{senha}' + '\n')
-
-        open(f'data/tarefas/{username}.txt', 'x')
+    if not erros():
+        conect = conexao()
+        cursor = conect.cursor()
+        cursor.execute('SELECT id FROM User Where nome = ?',(username,))
+        user_exists = cursor.fetchone
+        if user_exists:
+            erros['username'] = "Já existe um usuário com o mesmo nome"
+            conect.close()
+        conect.execute('INSERT INTO User (nome,senha) VALUES (?,?)'(username,senha))
+        conect.commit()
+        conect.close()
 
         autenticar(username)
         return redirect('tarefas')
@@ -78,19 +84,17 @@ def login():
     if not senha:
         erros['senha'] = 'Digite uma senha para logar.'
 
-    arquivo_dados = open('data/usuarios.txt')
-    dados = arquivo_dados.readlines()
-    
-    for n in range(0, len(dados), 2):
-        _username = dados[n][:len(dados[n]) - 1]
-        _senha = dados[n + 1][:len(dados[n + 1]) - 1]
-        if username == _username:
-            if senha == _senha:
-                autenticar(username)
-                return redirect('tarefas')
+    if not erros:
+        conect = conexao()
+        cursor = conect.cursor()
+        user = cursor.execute('SELECT * FROM User WHERE nome = ? AND senha = ?',(username,senha))
+        if user:
+            autenticar(username)
+            return redirect('tarefas')
     else:
         erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
         return render_template('login.html', erros=erros)
+    return render_template('login.html', erros=erros)
 
 @validar_usuario
 @app.route('/tarefas')
@@ -137,38 +141,26 @@ def cadastrar_tarefa():
 @validar_usuario
 @app.route('/logout')
 def logout():
-    global usuario
-    usuario = None
-
-    arquivo = open('data/usuario.txt', 'w')
-    arquivo.write('')
+    # Criar uma def para sair corretamente
     return redirect('login')
 
 @validar_usuario
 @app.route('/remover-tarefa/<id>')
 def remover_tarefa(id: str):
-    tarefas = carregar_tarefas()
-    for tarefa in tarefas:
-        if tarefa['id'] == id:
-            tarefas.remove(tarefa)
-
-    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'w') as arquivo_tarefas:
-        arquivo_tarefas.write('')
-    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'a') as arquivo_tarefas:
-        for tarefa in tarefas:
-            titulo = tarefa['titulo'].replace('\n', '\\n')
-            descricao = tarefa['desicricao'].replace('\n', '\\n')
-
-            arquivo_tarefas.write(f'{titulo}\n')
-            arquivo_tarefas.write(f'{descricao}\n')
-            arquivo_tarefas.write(f'{tarefa["prazo"]}\n')
-            arquivo_tarefas.write(f'{tarefa["id"]}\n')
-
+    username_atual = usuario_autenticado()
+    conect = conexao()
+    cursor = conect.cursor()
+    user = cursor.execute('SELECT id FROM User WHERE nome = ?'(username_atual,)).fetchone()
+    conect.execute('DELETE FROM Tarefa WHERE id = ? And user_id = ?', (user,user['id']))
+    conect.commit()
+    conect.close()
     return redirect(url_for('tarefas'))
 
 @validar_usuario
 @app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
 def editar_tarefa(id: str):
+    username_atual = usuario_autenticado()
+    conect = conexao()
     tarefas = carregar_tarefas()
     for tarefa in tarefas:
         if tarefa['id'] == id:
