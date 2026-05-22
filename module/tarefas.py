@@ -1,19 +1,9 @@
 from .autenticacao import usuario_autenticado
-
+from .bd import *
 def carregar_tarefas() -> list[dict[str, str]]:
-    arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt')
-    dados = arquivo_dados.readlines()
-    tarefas = []
-
-    for n in range(0, len(dados), 4):
-        tarefa = {
-            'titulo': dados[n][:len(dados[n]) - 1],
-            'descricao': dados[n + 1][:len(dados[n + 1]) - 1],
-            'prazo': dados[n + 2][:len(dados[n + 2]) - 1],
-            'id': dados[n + 3][:len(dados[n + 3]) - 1]
-        }
-        tarefas.append(tarefa)
-
+    conect = conexao()
+    cursor = conect.cursor()
+    tarefas = cursor('SELECT id,nome,descricao,prazo FROM Tarefa WHERE user_id = ?',(session['id'],)).fetchall()
     return tarefas
 
 def validar_dados_tarefa(titulo: str, prazo: str, id: int):
