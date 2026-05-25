@@ -2,11 +2,15 @@ from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
 import sqlite3
+
 app = Flask(__name__)
+app.secret_key = 'ca26f724-c05e-4116-aad9-0a6383ce4386'
+
+iniciar()
 
 @app.route('/')
 def index():
-    if not usuario:
+    if not session.get('user'):
         return render_template('index.html')
     redirect('tarefas')
 
@@ -29,20 +33,23 @@ def cadastro():
     if senha and confirmacao and senha != confirmacao:
         erros['confirmacao'] = 'Confirmação incorreta.'
 
-    if not erros():
+    if not erros:
         conect = conexao()
         cursor = conect.cursor()
         cursor.execute('SELECT id FROM User Where nome = ?',(username,))
-        user_exists = cursor.fetchone
+        user_exists = cursor.fetchone()
         if user_exists:
             erros['username'] = "Já existe um usuário com o mesmo nome"
             conect.close()
-        conect.execute('INSERT INTO User (nome,senha) VALUES (?,?)'(username,senha))
+        cursor.execute('INSERT INTO User (nome,senha) VALUES (?,?)', (username,senha))
         conect.commit()
-        conect.close()
 
-        autenticar(username)
-        return redirect('tarefas')
+        user = cursor.execute('SELECT * FROM User WHERE nome = ?',(username,)).fetchone()
+        session['user'] = user['nome']
+        session['id'] = user['id']
+
+        conect.close()
+        return redirect(url_for('tarefas'))
     else:
         return render_template('cadastro.html', erros=erros)
     
@@ -63,9 +70,10 @@ def login():
     if not erros:
         conect = conexao()
         cursor = conect.cursor()
-        user = cursor.execute('SELECT * FROM User WHERE nome = ? AND senha = ?',(username,senha))
+        user = cursor.execute('SELECT * FROM User WHERE nome = ? AND senha = ?',(username,senha)).fetchone()
         if user:
-            autenticar(username)
+            session['user'] = username
+            session['id'] = user['id']
             return redirect('tarefas')
     else:
         erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
@@ -76,11 +84,13 @@ def login():
 @app.route('/tarefas')
 def tarefas():
     tarefas_inicial = carregar_tarefas()
-    tarefas = []
     if request.args and request.args.get('titulo'):
+        tarefas = []
         for tarefa in tarefas_inicial:
             if request.args['titulo'] in tarefa['titulo']:
                 tarefas.append(tarefa)
+    else:
+        tarefas = tarefas_inicial
 
     if tarefas:
         return render_template('tarefas.html', tarefas=tarefas)
@@ -100,19 +110,21 @@ def cadastrar_tarefa():
     id_nova_tarefa = len(tarefas) + 1
     erros = validar_dados_tarefa(titulo, prazo, id_nova_tarefa)
 
-    if not erros.items():
-        arquivo_dados = open(f'data/tarefas/{usuario_autenticado()}.txt', 'a')
-        titulo = titulo.replace('\n', '\\n')
-        descricao = descricao.replace('\n', '\\n')
+    if erros:
+        return render_template('formulario_tarefa', view='cadastrar_tarefa', error=erros)
+    
+    connect = conexao()
+    cursor = connect.cursor()
 
-        arquivo_dados.write(f'{titulo}\n')
-        arquivo_dados.write(f'{descricao if descricao else "Sem descrição."}\n')
-        arquivo_dados.write(f'{prazo if prazo else "Sem prazo."}\n')
-        arquivo_dados.write(f'{id_nova_tarefa}\n')
+    cursor.execute("""
+        INSERT INTO Tarefa (nome, descricao, prazo, user_id) VALUES
+        (?, ?, ?, ?)
+    """, (titulo, descricao, prazo, session['id']))
 
-        return redirect('tarefas')
-    else:
-        return render_template('formulario_tarefa.html', erros=erros, view='cadastrar_tarefa')
+    connect.commit()
+    connect.close()
+
+    return redirect(url_for('tarefas'))
 
 @validar_usuario
 @app.route('/logout')
@@ -123,7 +135,7 @@ def logout():
 @validar_usuario
 @app.route('/remover-tarefa/<id>')
 def remover_tarefa(id: str):
-    username_atual = usuario_autenticado()
+    username_atual = session['user']
     conect = conexao()
     cursor = conect.cursor()
     user = cursor.execute('SELECT id FROM User WHERE nome = ?'(username_atual,)).fetchone()
@@ -135,7 +147,7 @@ def remover_tarefa(id: str):
 @validar_usuario
 @app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
 def editar_tarefa(id: str):
-    username_atual = usuario_autenticado()
+    username_atual = session['user']
     conect = conexao()
     tarefas = carregar_tarefas()
     for tarefa in tarefas:
@@ -158,18 +170,5 @@ def editar_tarefa(id: str):
             tarefa['titulo'] = titulo
             tarefa['descricao'] = descricao
             tarefa['prazo'] = prazo
-
-    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'w') as arquivo_tarefas:
-        arquivo_tarefas.write('')
-    with open(f'data/tarefas/{usuario_autenticado()}.txt', 'a') as arquivo_tarefas:
-        for tarefa in tarefas:
-            titulo = tarefa['titulo'].replace('\n', '\\n')
-            descricao = tarefa['descricao'].replace('\n', '\\n')
-            prazo = tarefa['prazo']
-
-            arquivo_tarefas.write(f'{titulo}\n')
-            arquivo_tarefas.write(f'{descricao if descricao else "Sem descrição."}\n')
-            arquivo_tarefas.write(f'{prazo if prazo else "Sem prazo."}\n')
-            arquivo_tarefas.write(f'{tarefa["id"]}\n')
 
     return redirect(url_for('tarefas'))

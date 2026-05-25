@@ -1,9 +1,10 @@
-from .autenticacao import usuario_autenticado
+from flask import session
 from .bd import *
+
 def carregar_tarefas() -> list[dict[str, str]]:
     conect = conexao()
     cursor = conect.cursor()
-    tarefas = cursor('SELECT id,nome,descricao,prazo FROM Tarefa WHERE user_id = ?',(session['id'],)).fetchall()
+    tarefas = cursor.execute('SELECT id,nome,descricao,prazo, user_id FROM Tarefa WHERE user_id = ?',(session['id'],)).fetchall()
     return tarefas
 
 def validar_dados_tarefa(titulo: str, prazo: str, id: int):
