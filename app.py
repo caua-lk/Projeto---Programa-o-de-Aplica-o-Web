@@ -129,7 +129,8 @@ def cadastrar_tarefa():
 @validar_usuario
 @app.route('/logout')
 def logout():
-    # Criar uma def para sair corretamente
+    session.pop('id')
+    session.pop('user')
     return redirect('login')
 
 @validar_usuario
