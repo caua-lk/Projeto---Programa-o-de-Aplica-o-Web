@@ -12,7 +12,8 @@ iniciar()
 def index():
     if not session.get('user'):
         return render_template('index.html')
-    redirect('tarefas')
+
+    return redirect(url_for('tarefas'))
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
@@ -32,6 +33,7 @@ def cadastro():
         erros['confirmacao'] = 'Confirme sua senha para se cadastrar.'
     if senha and confirmacao and senha != confirmacao:
         erros['confirmacao'] = 'Confirmação incorreta.'
+
 
     if not erros:
         conect = conexao()
@@ -111,8 +113,12 @@ def cadastrar_tarefa():
     erros = validar_dados_tarefa(titulo, prazo, id_nova_tarefa)
 
     if erros:
-        return render_template('formulario_tarefa', view='cadastrar_tarefa', error=erros)
-    
+        return render_template(
+            'formulario_tarefa.html',
+            erros=erros,
+            tarefa=None
+        )
+
     connect = conexao()
     cursor = connect.cursor()
 
@@ -136,11 +142,11 @@ def logout():
 @validar_usuario
 @app.route('/remover-tarefa/<id>')
 def remover_tarefa(id: str):
-    username_atual = session['user']
     conect = conexao()
-    cursor = conect.cursor()
-    user = cursor.execute('SELECT id FROM User WHERE nome = ?'(username_atual,)).fetchone()
-    conect.execute('DELETE FROM Tarefa WHERE id = ? And user_id = ?', (user,user['id']))
+    conect.execute(
+        'DELETE FROM Tarefa WHERE id = ? AND user_id = ?',
+        (id, session['id'])
+    )
     conect.commit()
     conect.close()
     return redirect(url_for('tarefas'))
@@ -148,28 +154,43 @@ def remover_tarefa(id: str):
 @validar_usuario
 @app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
 def editar_tarefa(id: str):
-    username_atual = session['user']
     conect = conexao()
-    tarefas = carregar_tarefas()
-    for tarefa in tarefas:
-        if tarefa['id'] == id:
-            dados_tarefa = tarefa
-
+    cursor = conect.cursor()
+    tarefa = cursor.execute(
+        '''
+        SELECT id,
+               nome AS titulo,
+               descricao,
+               prazo
+        FROM Tarefa
+        WHERE id = ? AND user_id = ?
+        ''',
+        (id, session['id'])
+    ).fetchone()
     if request.method == 'GET':
-        return render_template('formulario_tarefa.html', tarefa=dados_tarefa)
-    
+        return render_template(
+            'formulario_tarefa.html',
+            tarefa=tarefa,
+            erros={}
+        )
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
-
-    erros = validar_dados_tarefa(titulo, prazo, id)
-    if erros.items():
-        return render_template('formulario_tarefa.html', erros=erros, tarefa=dados_tarefa)
-
-    for tarefa in tarefas:
-        if tarefa['id'] == id:
-            tarefa['titulo'] = titulo
-            tarefa['descricao'] = descricao
-            tarefa['prazo'] = prazo
-
+    erros = validar_dados_tarefa(titulo, prazo, int(id))
+    if erros:
+        return render_template(
+            'formulario_tarefa.html',
+            tarefa=tarefa,
+            erros=erros
+        )
+    cursor.execute(
+        '''
+        UPDATE Tarefa
+        SET nome = ?, descricao = ?, prazo = ?
+        WHERE id = ? AND user_id = ?
+        ''',
+        (titulo, descricao, prazo, id, session['id'])
+    )
+    conect.commit()
+    conect.close()
     return redirect(url_for('tarefas'))
