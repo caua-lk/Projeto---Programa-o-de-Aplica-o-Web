@@ -40,3 +40,4 @@ def validar_dados_tarefa(titulo: str, prazo: str, id: int):
                     erros['prazo'] = 'O prazo inserido já passou.'
 
     return erros
+

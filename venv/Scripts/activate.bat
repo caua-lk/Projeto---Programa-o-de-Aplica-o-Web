@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\Dell\Downloads\Projeto---Programa-o-de-Aplica-o-Web-main\venv
+set VIRTUAL_ENV=C:\Users\Dell\Documents\GitHub\Projeto---Programa-o-de-Aplica-o-Web\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

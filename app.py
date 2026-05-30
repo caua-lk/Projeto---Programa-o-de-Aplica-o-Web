@@ -194,3 +194,4 @@ def editar_tarefa(id: str):
     conect.commit()
     conect.close()
     return redirect(url_for('tarefas'))
+
