@@ -1,12 +1,26 @@
 from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
-import sqlite3
+from flask_sqlalchemy import SQLAlchemy
+import sqlalchemy as sqla
 
 app = Flask(__name__)
 app.secret_key = 'ca26f724-c05e-4116-aad9-0a6383ce4386'
 
-iniciar()
+db = SQLAlchemy(app)
+
+class Usuario(db.Model):
+    id = db.Column(type_=db.Integer())
+    nome = db.Column(type_=db.String(max_length=80))
+    senha = db.Column(type_=db.String())
+
+
+class Tarefa(db.Model):
+    id = db.Column(type_=db.Integer())
+    nome = db.Column(type_=db.String(max_length=80))
+    descricao = db.Column(type_=db.Text())
+    prazo = db.Column(type_=db.DateTime())
+    usuario_id = db.Column(type_=db.ForeignKey(to=Usuario))
 
 @app.route('/')
 def index():
@@ -195,3 +209,7 @@ def editar_tarefa(id: str):
     conect.close()
     return redirect(url_for('tarefas'))
 
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True) # Desativar o debug para entregar
