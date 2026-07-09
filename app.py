@@ -2,10 +2,18 @@ from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_required, login_user
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlalchemy as sqla
-
 app = Flask(__name__)
 app.secret_key = 'ca26f724-c05e-4116-aad9-0a6383ce4386'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Usuario.get(user_id)
 
 db = SQLAlchemy(app)
 
@@ -13,8 +21,7 @@ class Usuario(db.Model):
     id = db.Column(type_=db.Integer())
     nome = db.Column(type_=db.String(max_length=80))
     senha = db.Column(type_=db.String())
-
-
+    
 class Tarefa(db.Model):
     id = db.Column(type_=db.Integer())
     nome = db.Column(type_=db.String(max_length=80))
@@ -50,26 +57,21 @@ def cadastro():
 
 
     if not erros:
-        conect = conexao()
-        cursor = conect.cursor()
-        cursor.execute('SELECT id FROM User Where nome = ?',(username,))
-        user_exists = cursor.fetchone()
+        hashed = generate_password_hash(senha)
+        usuario = Usuario(nome=username,senha=hashed)
+        user_exists = db.session.scalars(db.select((Usuario.query(Usuario.nome==usuario.nome)))).first()
+        db.session.add(usuario)
+        db.session.commit()
         if user_exists:
             erros['username'] = "Já existe um usuário com o mesmo nome"
-            conect.close()
-        cursor.execute('INSERT INTO User (nome,senha) VALUES (?,?)', (username,senha))
-        conect.commit()
-
-        user = cursor.execute('SELECT * FROM User WHERE nome = ?',(username,)).fetchone()
-        session['user'] = user['nome']
-        session['id'] = user['id']
-
-        conect.close()
+            db.session.rollback()
+        login_user(usuario)
         return redirect(url_for('tarefas'))
     else:
         return render_template('cadastro.html', erros=erros)
     
 @app.route('/login', methods=['GET', 'POST'])
+@login_required
 def login():
     if request.method == 'GET':
         return render_template('login.html')
@@ -98,6 +100,7 @@ def login():
 
 @validar_usuario
 @app.route('/tarefas')
+@login_required
 def tarefas():
     tarefas_inicial = carregar_tarefas()
     if request.args and request.args.get('titulo'):
@@ -114,6 +117,7 @@ def tarefas():
 
 @validar_usuario
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
+@login_required
 def cadastrar_tarefa():
     if request.method == 'GET':
         return render_template('formulario_tarefa.html', view='cadastrar_tarefa')
@@ -148,6 +152,7 @@ def cadastrar_tarefa():
 
 @validar_usuario
 @app.route('/logout')
+@login_required
 def logout():
     session.pop('id')
     session.pop('user')
@@ -155,6 +160,7 @@ def logout():
 
 @validar_usuario
 @app.route('/remover-tarefa/<id>')
+@login_required
 def remover_tarefa(id: str):
     conect = conexao()
     conect.execute(
@@ -167,6 +173,7 @@ def remover_tarefa(id: str):
 
 @validar_usuario
 @app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
+@login_required
 def editar_tarefa(id: str):
     conect = conexao()
     cursor = conect.cursor()
