@@ -60,7 +60,7 @@ def cadastro():
     if not erros:
         hashed = generate_password_hash(senha)
         usuario = Usuario(nome=username,senha=hashed)
-        user_exists = db.session.scalars(db.select((Usuario.query(Usuario.nome==usuario.nome)))).first()
+        user_exists = db.session.execute(db.select(Usuario).filter_by(nome=username)).scalar()
         db.session.add(usuario)
         db.session.commit()
         if user_exists:
