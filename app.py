@@ -2,12 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_required, login_user
+from flask_login import LoginManager, login_required, login_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlalchemy as sqla
+
 app = Flask(__name__)
 app.secret_key = 'ca26f724-c05e-4116-aad9-0a6383ce4386'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///banck.db'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -17,17 +18,17 @@ def load_user(user_id):
 
 db = SQLAlchemy(app)
 
-class Usuario(db.Model):
-    id = db.Column(type_=db.Integer())
-    nome = db.Column(type_=db.String(max_length=80))
-    senha = db.Column(type_=db.String())
+class Usuario(db.Model, UserMixin):
+    id = db.Column(db.Integer(), primary_key=True)
+    nome = db.Column(db.String(80), unique=True,nullable=False)
+    senha = db.Column(db.String(255),nullable=False)
     
 class Tarefa(db.Model):
-    id = db.Column(type_=db.Integer())
-    nome = db.Column(type_=db.String(max_length=80))
-    descricao = db.Column(type_=db.Text())
-    prazo = db.Column(type_=db.DateTime())
-    usuario_id = db.Column(type_=db.ForeignKey(to=Usuario))
+    id = db.Column(db.Integer(), prymary_key=True)
+    nome = db.Column(db.String(80), nullable=False)
+    descricao = db.Column(db.Text())
+    prazo = db.Column(db.DateTime())
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'))
 
 @app.route('/')
 def index():
@@ -78,6 +79,7 @@ def login():
 
     username = request.form.get('username')
     senha = request.form.get('senha')
+    hashed = generate_password_hash(senha)
     erros = {}
 
     if not username:
@@ -86,12 +88,9 @@ def login():
         erros['senha'] = 'Digite uma senha para logar.'
 
     if not erros:
-        conect = conexao()
-        cursor = conect.cursor()
-        user = cursor.execute('SELECT * FROM User WHERE nome = ? AND senha = ?',(username,senha)).fetchone()
+        user = db.session.scalars(db.select((Usuario.query(Usuario.nome == username,Usuario.senha==hashed)))).first()
         if user:
-            session['user'] = username
-            session['id'] = user['id']
+            login_user(user)
             return redirect('tarefas')
     else:
         erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
