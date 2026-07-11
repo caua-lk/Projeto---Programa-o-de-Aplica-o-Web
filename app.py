@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_required, login_user, UserMixin
+from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlalchemy as sqla
 
@@ -24,7 +24,7 @@ class Usuario(db.Model, UserMixin):
     senha = db.Column(db.String(255),nullable=False)
     
 class Tarefa(db.Model):
-    id = db.Column(db.Integer(), prymary_key=True)
+    id = db.Column(db.Integer(), primary_key=True)
     nome = db.Column(db.String(80), nullable=False)
     descricao = db.Column(db.Text())
     prazo = db.Column(db.DateTime())
@@ -58,21 +58,23 @@ def cadastro():
 
 
     if not erros:
-        hashed = generate_password_hash(senha)
-        usuario = Usuario(nome=username,senha=hashed)
         user_exists = db.session.execute(db.select(Usuario).filter_by(nome=username)).scalar()
-        db.session.add(usuario)
-        db.session.commit()
+        
         if user_exists:
             erros['username'] = "Já existe um usuário com o mesmo nome"
-            db.session.rollback()
-        login_user(usuario)
-        return redirect(url_for('tarefas'))
+        else:
+            hashed = generate_password_hash(senha)
+            usuario = Usuario(nome=username,senha=hashed)
+            
+            db.session.add(usuario)
+            db.session.commit()
+
+            login_user(usuario)
+            return redirect(url_for('tarefas'))
     else:
         return render_template('cadastro.html', erros=erros)
     
 @app.route('/login', methods=['GET', 'POST'])
-@login_required
 def login():
     if request.method == 'GET':
         return render_template('login.html')
@@ -88,13 +90,16 @@ def login():
 
     if not erros:
         user = db.session.execute(db.select(Usuario).filter_by(nome=username)).scalars().first()
+
         if user and check_password_hash(user.senha,senha):
             login_user(user)
-            return redirect('tarefas')
+            return redirect(url_for('tarefas'))
+        else:
+            erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
+            return render_template('login.html', erros=erros)
     else:
         erros['geral'] = 'Nome de usuário ou senha incorreto(s)'
         return render_template('login.html', erros=erros)
-    return render_template('login.html', erros=erros)
 
 @validar_usuario
 @app.route('/tarefas')
@@ -152,9 +157,8 @@ def cadastrar_tarefa():
 @app.route('/logout')
 @login_required
 def logout():
-    session.pop('id')
-    session.pop('user')
-    return redirect('login')
+    logout_user()
+    return redirect(url_for('login'))
 
 @validar_usuario
 @app.route('/remover-tarefa/<id>')
