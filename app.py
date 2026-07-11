@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from module.autenticacao import *
 from module.tarefas import *
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user
+from flask_login import LoginManager, login_required, login_user, UserMixin, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlalchemy as sqla
 
@@ -105,18 +105,11 @@ def login():
 @app.route('/tarefas')
 @login_required
 def tarefas():
-    tarefas_inicial = carregar_tarefas()
-    if request.args and request.args.get('titulo'):
-        tarefas = []
-        for tarefa in tarefas_inicial:
-            if request.args['titulo'] in tarefa['titulo']:
-                tarefas.append(tarefa)
-    else:
-        tarefas = tarefas_inicial
-
-    if tarefas:
-        return render_template('tarefas.html', tarefas=tarefas)
-    return render_template('tarefas.html', tarefas=tarefas_inicial)
+    user_id = current_user.id
+    
+    tarefas = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id)).scalars().all()
+    
+    return render_template('tarefas.html', tarefas=tarefas)
 
 @validar_usuario
 @app.route('/cadastrar-tarefa', methods=['GET', 'POST'])
@@ -128,28 +121,19 @@ def cadastrar_tarefa():
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
-
-    tarefas = carregar_tarefas()
-    id_nova_tarefa = len(tarefas) + 1
-    erros = validar_dados_tarefa(titulo, prazo, id_nova_tarefa)
-
+    erros = {}
+    if not titulo:
+        erros['titulo'] = 'Digite um título para cadastrar a tarefa.'
+    if not prazo:
+        erros['prazo'] = 'Defina um prazo para cadastrar a tarefa.'
+    # tarefas = carregar_tarefas()
+    # id_nova_tarefa = len(tarefas) + 1
     if erros:
-        return render_template(
-            'formulario_tarefa.html',
-            erros=erros,
-            tarefa=None
-        )
+        return render_template('formulario_tarefa.html', erros=erros, tarefa=None)
 
-    connect = conexao()
-    cursor = connect.cursor()
-
-    cursor.execute("""
-        INSERT INTO Tarefa (nome, descricao, prazo, user_id) VALUES
-        (?, ?, ?, ?)
-    """, (titulo, descricao, prazo, session['id']))
-
-    connect.commit()
-    connect.close()
+    tarefa = Tarefa(nome=titulo,descricao=descricao,prazo=prazo,usuario_id=current_user.id)
+    db.session.add(tarefa)
+    db.session.commit()
 
     return redirect(url_for('tarefas'))
 
