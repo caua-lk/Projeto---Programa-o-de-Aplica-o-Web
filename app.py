@@ -79,7 +79,6 @@ def login():
 
     username = request.form.get('username')
     senha = request.form.get('senha')
-    hashed = generate_password_hash(senha)
     erros = {}
 
     if not username:
@@ -88,8 +87,8 @@ def login():
         erros['senha'] = 'Digite uma senha para logar.'
 
     if not erros:
-        user = db.session.scalars(db.select((Usuario.query(Usuario.nome == username,Usuario.senha==hashed)))).first()
-        if user:
+        user = db.session.execute(db.select(Usuario).filter_by(nome=username)).scalars().first()
+        if user and check_password_hash(user.senha,senha):
             login_user(user)
             return redirect('tarefas')
     else:
