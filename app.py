@@ -148,13 +148,11 @@ def logout():
 @app.route('/remover-tarefa/<id>')
 @login_required
 def remover_tarefa(id: str):
-    conect = conexao()
-    conect.execute(
-        'DELETE FROM Tarefa WHERE id = ? AND user_id = ?',
-        (id, session['id'])
-    )
-    conect.commit()
-    conect.close()
+    user_id = current_user.id
+    tarefa = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id,id=id)).scalars()
+    if tarefa:
+        db.session.delete(tarefa)
+        db.session.commit()
     return redirect(url_for('tarefas'))
 
 @validar_usuario
