@@ -149,7 +149,7 @@ def logout():
 @login_required
 def remover_tarefa(id: str):
     user_id = current_user.id
-    tarefa = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id,id=id)).scalars()
+    tarefa = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id,id=id)).scalars().first()
     if tarefa:
         db.session.delete(tarefa)
         db.session.commit()
@@ -160,44 +160,29 @@ def remover_tarefa(id: str):
 @login_required
 def editar_tarefa(id: str):
     user_id = current_user.id
-    tarefa = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id,id=id)).scalars()
-    tarefa = cursor.execute(
-        '''
-        SELECT id,
-               nome AS titulo,
-               descricao,
-               prazo
-        FROM Tarefa
-        WHERE id = ? AND user_id = ?
-        ''',
-        (id, session['id'])
-    ).fetchone()
+    tarefa = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id,id=id)).scalars().first()
+    if not tarefa:
+        return redirect(url_for('tarefas'))
     if request.method == 'GET':
-        return render_template(
-            'formulario_tarefa.html',
-            tarefa=tarefa,
-            erros={}
-        )
+        return render_template('formulario_tarefa.html', tarefa=tarefa, erros={})
+    
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
-    erros = validar_dados_tarefa(titulo, prazo, int(id))
+    erros = {}
+
+    if not titulo:
+        erros['titulo'] = 'Digite um título para cadastrar a tarefa.'
+    if not prazo:
+        erros['prazo'] = 'Defina um prazo para cadastrar a tarefa.'
     if erros:
-        return render_template(
-            'formulario_tarefa.html',
-            tarefa=tarefa,
-            erros=erros
-        )
-    cursor.execute(
-        '''
-        UPDATE Tarefa
-        SET nome = ?, descricao = ?, prazo = ?
-        WHERE id = ? AND user_id = ?
-        ''',
-        (titulo, descricao, prazo, id, session['id'])
-    )
-    conect.commit()
-    conect.close()
+        return render_template('formulario_tarefa.html', tarefa=tarefa, erros=erros)
+
+    tarefa.nome = titulo
+    tarefa.prazo = prazo
+    if descricao:
+        tarefa.descricao = descricao
+    db.session.commit()
     return redirect(url_for('tarefas'))
 
 if __name__ == '__main__':
