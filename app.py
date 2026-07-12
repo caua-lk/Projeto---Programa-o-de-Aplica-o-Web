@@ -11,10 +11,11 @@ app.secret_key = 'ca26f724-c05e-4116-aad9-0a6383ce4386'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///banck.db'
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Usuario.query.get(user_id)
+    return db.session.get(Usuario,user_id)
 
 db = SQLAlchemy(app)
 
@@ -32,7 +33,7 @@ class Tarefa(db.Model):
 
 @app.route('/')
 def index():
-    if not session.get('user'):
+    if not current_user.is_authenticated:
         return render_template('index.html')
 
     return redirect(url_for('tarefas'))
