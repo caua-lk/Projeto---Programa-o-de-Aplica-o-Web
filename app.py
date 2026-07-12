@@ -159,8 +159,8 @@ def remover_tarefa(id: str):
 @app.route('/editar-tarefa/<id>', methods=['GET', 'POST'])
 @login_required
 def editar_tarefa(id: str):
-    conect = conexao()
-    cursor = conect.cursor()
+    user_id = current_user.id
+    tarefa = db.session.execute(db.select(Tarefa).filter_by(usuario_id=user_id,id=id)).scalars()
     tarefa = cursor.execute(
         '''
         SELECT id,
