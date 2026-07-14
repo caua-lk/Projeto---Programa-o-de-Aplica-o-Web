@@ -1,5 +1,10 @@
 # Agenda de Atividades 
 
+**Componentes:**
+- Arthur Moreira Barros
+- Cauã Vitor Costa da Silva
+- Daniel dos Santos Soares
+
 ## Proposta 
 O nosso projeto propõe utilizar uma aplicação simples e intuitiva para a organização e agendamento de atividades decorrentes do cotidiano do usuário, uma vez que o mesmo necessita de orientação para estabelecer tópicos que serão resolvidos, podendo: alterar, adicionar, excluir, finalizar e mostrar. 
 ## Justificativa 	
@@ -9,7 +14,7 @@ Para fazer a ponte entre o banco de dados e a navegação do usuário, o projeto
 ## Banco de Dados 
 O banco de dados utilizado foi o Sqlite3, onde o sistema procura o usuário e atividades relacionadas de maneira coerente às privacidades de usuário. 
 ### Estrutura das Tabelas
-#### Tabela: `Users`
+#### Tabela: `Usuario`
 | Campo | Tipo de Dado | Atributos |
 | :--- | :--- | :--- |
 | `id` | INTEGER | PRIMARY KEY AUTOINCREMENT |
@@ -23,8 +28,4 @@ O banco de dados utilizado foi o Sqlite3, onde o sistema procura o usuário e at
 | `nome` | TEXT | NOT NULL |
 | `descricao` | TEXT | - |
 | `prazo` | TEXT | - |
-| `user_id` | INTEGER | FOREIGN KEY (Users.id) |
-**Componentes:**
-- Arthur Moreira Barros
-- Cauã Vitor Costa da Silva
-- Daniel dos Santos Soares
+| `usuario_id` | INTEGER | FOREIGN KEY (Usuario.id) |
