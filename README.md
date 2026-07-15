@@ -1,9 +1,9 @@
 # Agenda de Atividades 
 
-**Componentes:**
+**Desenvolvedores:**
 - Arthur Moreira Barros
-- Cauã Vitor Costa da Silva
-- Daniel dos Santos Soares
+- Cauã Vitor Costa da Silva (caua-lk)
+- Daniel dos Santos Soares (danielsoares321)
 
 ## Proposta 
 O nosso projeto propõe utilizar uma aplicação simples e intuitiva para a organização e agendamento de atividades decorrentes do cotidiano do usuário, uma vez que o mesmo necessita de orientação para estabelecer tópicos que serão resolvidos, podendo: alterar, adicionar, excluir, finalizar e mostrar. 
