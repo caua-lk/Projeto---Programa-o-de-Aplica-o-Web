@@ -119,6 +119,8 @@ def cadastrar_tarefa():
     if request.method == 'GET':
         return render_template('formulario_tarefa.html', view='cadastrar_tarefa')
 
+    from datetime import datetime
+
     titulo = request.form.get('titulo')
     descricao = request.form.get('descricao')
     prazo = request.form.get('prazo')
@@ -132,7 +134,7 @@ def cadastrar_tarefa():
     if erros:
         return render_template('formulario_tarefa.html', erros=erros, tarefa=None)
 
-    tarefa = Tarefa(nome=titulo,descricao=descricao,prazo=prazo,usuario_id=current_user.id)
+    tarefa = Tarefa(nome=titulo,descricao=descricao,prazo=datetime.strptime(prazo, '%Y-%m-%d'),usuario_id=current_user.id)
     db.session.add(tarefa)
     db.session.commit()
 
