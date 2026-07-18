@@ -30,7 +30,7 @@ body{
 /* HEADER */
 header{
     background-color: var(--brand-400);
-    padding: 16px;
+    padding: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
